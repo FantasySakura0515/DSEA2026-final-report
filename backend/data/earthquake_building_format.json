@@ -1,0 +1,1244 @@
+{
+    "result": [
+        {
+            "id": 1,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.476388",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "士林區",
+            "district_code": "111",
+            "building_location": "天母北路87巷22弄2、4、6號； 87巷16至22號1至5樓",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.527800050646,
+                    "latitude": 25.122436038994
+                },
+                {
+                    "longitude": 121.528119517294,
+                    "latitude": 25.122482517001
+                },
+                {
+                    "longitude": 121.527926104551,
+                    "latitude": 25.122507785219
+                },
+                {
+                    "longitude": 121.526514497365,
+                    "latitude": 25.119685560986
+                },
+                {
+                    "longitude": 121.528052158457,
+                    "latitude": 25.122579531445
+                },
+                {
+                    "longitude": 121.526520783792,
+                    "latitude": 25.119724914022
+                },
+                {
+                    "longitude": 121.528053040614,
+                    "latitude": 25.122582733367
+                },
+                {
+                    "longitude": 121.527941674191,
+                    "latitude": 25.122758642563
+                },
+                {
+                    "longitude": 121.527845884965,
+                    "latitude": 25.122906594458
+                },
+                {
+                    "longitude": 121.528052158457,
+                    "latitude": 25.122579531445
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.486336",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "士林區",
+            "district_code": "111",
+            "building_location": "天母東路105巷1號3號地下室",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.536455250578,
+                    "latitude": 25.11850721724
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.486960",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "士林區",
+            "district_code": "111",
+            "building_location": "延平北路五段213巷17至33之1號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.508726422446,
+                    "latitude": 25.083454952148
+                },
+                {
+                    "longitude": 121.509285815392,
+                    "latitude": 25.083758618529
+                },
+                {
+                    "longitude": 121.508874865951,
+                    "latitude": 25.083443343213
+                },
+                {
+                    "longitude": 121.509279795694,
+                    "latitude": 25.083718437275
+                },
+                {
+                    "longitude": 121.508724997523,
+                    "latitude": 25.083422933278
+                },
+                {
+                    "longitude": 121.509139436283,
+                    "latitude": 25.083712435004
+                },
+                {
+                    "longitude": 121.508874363037,
+                    "latitude": 25.083415431475
+                },
+                {
+                    "longitude": 121.508940140605,
+                    "latitude": 25.083519281667
+                },
+                {
+                    "longitude": 121.508722566771,
+                    "latitude": 25.08339078868
+                },
+                {
+                    "longitude": 121.508887850752,
+                    "latitude": 25.083507713979
+                },
+                {
+                    "longitude": 121.508873860123,
+                    "latitude": 25.083389782851
+                },
+                {
+                    "longitude": 121.50910612266,
+                    "latitude": 25.083658506667
+                },
+                {
+                    "longitude": 121.508722734409,
+                    "latitude": 25.083360152824
+                },
+                {
+                    "longitude": 121.509072259771,
+                    "latitude": 25.083646855822
+                },
+                {
+                    "longitude": 121.50887327339,
+                    "latitude": 25.083361242471
+                },
+                {
+                    "longitude": 121.508762217102,
+                    "latitude": 25.083505226119
+                },
+                {
+                    "longitude": 121.508721225666,
+                    "latitude": 25.083331486715
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.487503",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "大同區",
+            "district_code": "103",
+            "building_location": "敦煌路165號2樓",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.511305701691,
+                    "latitude": 25.07663933331
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.488029",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "中山區",
+            "district_code": "104",
+            "building_location": "吉林路221至223號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.53036891554,
+                    "latitude": 25.060635765577
+                },
+                {
+                    "longitude": 121.530104466495,
+                    "latitude": 25.059044251712
+                },
+                {
+                    "longitude": 121.53037067574,
+                    "latitude": 25.060711412253
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.488520",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "中山區",
+            "district_code": "104",
+            "building_location": "長春路346號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.541260611984,
+                    "latitude": 25.05452120912
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.489017",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "中山區",
+            "district_code": "104",
+            "building_location": "新生北路二段41巷21、23號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.529224366662,
+                    "latitude": 25.055397830464
+                },
+                {
+                    "longitude": 121.529297456857,
+                    "latitude": 25.055391124941
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.489475",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "內湖區",
+            "district_code": "114",
+            "building_location": "新明路451巷34弄12、14號（整編為潭美街129、127號）",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.579703998604,
+                    "latitude": 25.05396466442
+                },
+                {
+                    "longitude": 121.579703998604,
+                    "latitude": 25.05396466442
+                },
+                {
+                    "longitude": 121.580196734037,
+                    "latitude": 25.053967677351
+                },
+                {
+                    "longitude": 121.580133470538,
+                    "latitude": 25.053950765798
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.490007",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "文山區",
+            "district_code": "116",
+            "building_location": "木新路2段86號至94號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.570405830429,
+                    "latitude": 24.985347038594
+                },
+                {
+                    "longitude": 121.57036789812,
+                    "latitude": 24.98483803714
+                },
+                {
+                    "longitude": 121.570380097986,
+                    "latitude": 24.985284635325
+                },
+                {
+                    "longitude": 121.57036789812,
+                    "latitude": 24.98483803714
+                },
+                {
+                    "longitude": 121.570371632264,
+                    "latitude": 24.985264057752
+                },
+                {
+                    "longitude": 121.570305415229,
+                    "latitude": 24.984775811892
+                },
+                {
+                    "longitude": 121.570347827659,
+                    "latitude": 24.985206054982
+                },
+                {
+                    "longitude": 121.570247747735,
+                    "latitude": 24.984711899881
+                },
+                {
+                    "longitude": 121.570337853194,
+                    "latitude": 24.985181873192
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.490495",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "中央北路四段442巷4弄2至10號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.470387010588,
+                    "latitude": 25.129502194528
+                },
+                {
+                    "longitude": 121.470182743608,
+                    "latitude": 25.12936355785
+                },
+                {
+                    "longitude": 121.470054536789,
+                    "latitude": 25.129502869859
+                },
+                {
+                    "longitude": 121.470244685873,
+                    "latitude": 25.129405383547
+                },
+                {
+                    "longitude": 121.470054536789,
+                    "latitude": 25.129502869859
+                },
+                {
+                    "longitude": 121.470303945928,
+                    "latitude": 25.129442431559
+                },
+                {
+                    "longitude": 121.470054536789,
+                    "latitude": 25.129502869859
+                },
+                {
+                    "longitude": 121.470354069709,
+                    "latitude": 25.129479479571
+                },
+                {
+                    "longitude": 121.470054536789,
+                    "latitude": 25.129502869859
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.490982",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "清江路207巷4號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.502237991198,
+                    "latitude": 25.127331449244
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.491479",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "尊賢街218巷23弄8至10號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.50855643745,
+                    "latitude": 25.115979041493
+                },
+                {
+                    "longitude": 121.508625001418,
+                    "latitude": 25.116065668462
+                },
+                {
+                    "longitude": 121.508693019039,
+                    "latitude": 25.115993221236
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.491941",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "知行路62至74號(其中知行路64、66號地下一樓及地上一.二.三.四.五樓建築物撤銷列管)、(同知行路60巷1號)",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.467794990851,
+                    "latitude": 25.118190858102
+                },
+                {
+                    "longitude": 121.46787034416,
+                    "latitude": 25.118201377391
+                },
+                {
+                    "longitude": 121.467782250358,
+                    "latitude": 25.118012994117
+                },
+                {
+                    "longitude": 121.467764648361,
+                    "latitude": 25.118186625241
+                },
+                {
+                    "longitude": 121.467863859887,
+                    "latitude": 25.118348760026
+                },
+                {
+                    "longitude": 121.467794990851,
+                    "latitude": 25.118190858102
+                },
+                {
+                    "longitude": 121.467863859887,
+                    "latitude": 25.118348760026
+                },
+                {
+                    "longitude": 121.46787034416,
+                    "latitude": 25.118201377391
+                },
+                {
+                    "longitude": 121.467863859887,
+                    "latitude": 25.118348760026
+                },
+                {
+                    "longitude": 121.467905631972,
+                    "latitude": 25.118206280804
+                },
+                {
+                    "longitude": 121.467863859887,
+                    "latitude": 25.118348760026
+                },
+                {
+                    "longitude": 121.467991881756,
+                    "latitude": 25.118218308835
+                },
+                {
+                    "longitude": 121.467863859887,
+                    "latitude": 25.118348760026
+                },
+                {
+                    "longitude": 121.468027672483,
+                    "latitude": 25.118223337977
+                },
+                {
+                    "longitude": 121.467863859887,
+                    "latitude": 25.118348760026
+                },
+                {
+                    "longitude": 121.468091291128,
+                    "latitude": 25.118232222795
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.492443",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "崗山路5巷16號3樓",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.486118920839,
+                    "latitude": 25.140173530737
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.492956",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "知行路293巷4至10號等【關渡黃金城】",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.466797879649,
+                    "latitude": 25.12201820273
+                },
+                {
+                    "longitude": 121.467026705605,
+                    "latitude": 25.121974239648
+                },
+                {
+                    "longitude": 121.4670324053,
+                    "latitude": 25.121837824174
+                },
+                {
+                    "longitude": 121.466929559348,
+                    "latitude": 25.121993224659
+                },
+                {
+                    "longitude": 121.466967194093,
+                    "latitude": 25.12185207341
+                },
+                {
+                    "longitude": 121.466891170231,
+                    "latitude": 25.122001522743
+                },
+                {
+                    "longitude": 121.46735965184,
+                    "latitude": 25.121782691997
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.493428",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "中央北路三段124號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.483317018246,
+                    "latitude": 25.137427619257
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.493917",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "北投區",
+            "district_code": "112",
+            "building_location": "明德路274至278號、282至284號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.52248866927,
+                    "latitude": 25.114641876479
+                },
+                {
+                    "longitude": 121.52231901955,
+                    "latitude": 25.114759684128
+                },
+                {
+                    "longitude": 121.522517670655,
+                    "latitude": 25.11474048957
+                },
+                {
+                    "longitude": 121.522336537727,
+                    "latitude": 25.114856830386
+                },
+                {
+                    "longitude": 121.522529572957,
+                    "latitude": 25.114806538967
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.494374",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "信義區",
+            "district_code": "110",
+            "building_location": "中坡南路120至136號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.584892273687,
+                    "latitude": 25.04074915547
+                },
+                {
+                    "longitude": 121.585412068077,
+                    "latitude": 25.041622227009
+                },
+                {
+                    "longitude": 121.584877102442,
+                    "latitude": 25.040727739707
+                },
+                {
+                    "longitude": 121.585412068077,
+                    "latitude": 25.041622227009
+                },
+                {
+                    "longitude": 121.584861847379,
+                    "latitude": 25.040706198216
+                },
+                {
+                    "longitude": 121.585412068077,
+                    "latitude": 25.041622227009
+                },
+                {
+                    "longitude": 121.584833432727,
+                    "latitude": 25.04069370918
+                },
+                {
+                    "longitude": 121.585412068077,
+                    "latitude": 25.041622227009
+                },
+                {
+                    "longitude": 121.584818680577,
+                    "latitude": 25.040668270104
+                },
+                {
+                    "longitude": 121.585412068077,
+                    "latitude": 25.041622227009
+                },
+                {
+                    "longitude": 121.584798731648,
+                    "latitude": 25.040634239577
+                },
+                {
+                    "longitude": 121.585412068077,
+                    "latitude": 25.041622227009
+                },
+                {
+                    "longitude": 121.584681385003,
+                    "latitude": 25.040433283448
+                },
+                {
+                    "longitude": 121.585468266665,
+                    "latitude": 25.041464129997
+                },
+                {
+                    "longitude": 121.584679457166,
+                    "latitude": 25.0403604028
+                },
+                {
+                    "longitude": 121.585468266665,
+                    "latitude": 25.041464129997
+                },
+                {
+                    "longitude": 121.584665710844,
+                    "latitude": 25.040336640105
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.494864",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "信義區",
+            "district_code": "110",
+            "building_location": "信義區路四段405、407號(405號1樓解除列管)",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.5677202,
+                    "latitude": 25.0331314
+                },
+                {
+                    "longitude": 121.5677202,
+                    "latitude": 25.0331314
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.495318",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "信義區",
+            "district_code": "110",
+            "building_location": "吳興街507號（整編為松仁路305號）",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.569811891731,
+                    "latitude": 25.023311886871
+                }
+            ]
+        },
+        {
+            "id": 21,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.495876",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "信義區",
+            "district_code": "110",
+            "building_location": "吳興街511號（整編為松仁路309號）",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.569811891731,
+                    "latitude": 25.023311886871
+                }
+            ]
+        },
+        {
+            "id": 22,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.496377",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "信義區",
+            "district_code": "110",
+            "building_location": "松隆路200、202號",
+            "note": "921黃單",
+            "geo": [
+                {
+                    "longitude": 121.572594848262,
+                    "latitude": 25.046929090771
+                },
+                {
+                    "longitude": 121.572652599575,
+                    "latitude": 25.046961444918
+                }
+            ]
+        },
+        {
+            "id": 23,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.496855",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "士林區",
+            "district_code": "111",
+            "building_location": "承德路四段340、342號",
+            "note": "331黃單",
+            "geo": [
+                {
+                    "longitude": 121.517459359727,
+                    "latitude": 25.090048282915
+                },
+                {
+                    "longitude": 121.517375289238,
+                    "latitude": 25.090110015632
+                }
+            ]
+        },
+        {
+            "id": 24,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.497296",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "士林區",
+            "district_code": "111",
+            "building_location": "華齡街1巷8～14號",
+            "note": "331黃單",
+            "geo": [
+                {
+                    "longitude": 121.51901210729,
+                    "latitude": 25.082438981665
+                },
+                {
+                    "longitude": 121.51942935843,
+                    "latitude": 25.082668184807
+                },
+                {
+                    "longitude": 121.518895934112,
+                    "latitude": 25.082426869814
+                },
+                {
+                    "longitude": 121.5194296539,
+                    "latitude": 25.082687296826
+                },
+                {
+                    "longitude": 121.518878080658,
+                    "latitude": 25.082373183725
+                },
+                {
+                    "longitude": 121.51901386749,
+                    "latitude": 25.082387013865
+                },
+                {
+                    "longitude": 121.519431873001,
+                    "latitude": 25.082636836489
+                }
+            ]
+        },
+        {
+            "id": 25,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.497774",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "大安區",
+            "district_code": "106",
+            "building_location": "信義區路四段60號（信維大樓原921黃單）",
+            "note": "331黃單",
+            "geo": [
+                {
+                    "longitude": 121.5677202,
+                    "latitude": 25.0331314
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.498263",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "文山區",
+            "district_code": "116",
+            "building_location": "忠順街一段10巷2、4、6號",
+            "note": "331黃單",
+            "geo": [
+                {
+                    "longitude": 121.558214603718,
+                    "latitude": 24.983864908565
+                },
+                {
+                    "longitude": 121.558228433858,
+                    "latitude": 24.983819813926
+                },
+                {
+                    "longitude": 121.558238240684,
+                    "latitude": 24.983787962694
+                }
+            ]
+        },
+        {
+            "id": 27,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.498719",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "信義區",
+            "district_code": "110",
+            "building_location": "虎林街59巷2至8號",
+            "note": "331黃單",
+            "geo": [
+                {
+                    "longitude": 121.577335987975,
+                    "latitude": 25.046434223208
+                },
+                {
+                    "longitude": 121.57727580591,
+                    "latitude": 25.046553832966
+                },
+                {
+                    "longitude": 121.57736926413,
+                    "latitude": 25.046428062509
+                },
+                {
+                    "longitude": 121.577277418413,
+                    "latitude": 25.046562482701
+                },
+                {
+                    "longitude": 121.577417292435,
+                    "latitude": 25.046423787738
+                },
+                {
+                    "longitude": 121.577277418413,
+                    "latitude": 25.046562482701
+                },
+                {
+                    "longitude": 121.577443611611,
+                    "latitude": 25.04642454211
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.499311",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "萬華區",
+            "district_code": "108",
+            "building_location": "成都路110號（成都大樓）",
+            "note": "331黃單",
+            "geo": [
+                {
+                    "longitude": 121.501791235759,
+                    "latitude": 25.04365176663
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.499796",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "松山區",
+            "district_code": "105",
+            "building_location": "民生東路5段204號(204號1-2樓解除列管)",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.564769503458,
+                    "latitude": 25.058258406379
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.500267",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "萬華區",
+            "district_code": "108",
+            "building_location": "武昌街2段118-5號",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.504533123926,
+                    "latitude": 25.045191396515
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.500840",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "內湖區",
+            "district_code": "114",
+            "building_location": "康樂街74巷2~8(雙)76巷1~7(單)地下室",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.61870285944,
+                    "latitude": 25.069790731682
+                },
+                {
+                    "longitude": 121.618631529444,
+                    "latitude": 25.069812231264
+                },
+                {
+                    "longitude": 121.61856346839,
+                    "latitude": 25.069832766927
+                },
+                {
+                    "longitude": 121.618480571368,
+                    "latitude": 25.069857744998
+                },
+                {
+                    "longitude": 121.618770585218,
+                    "latitude": 25.069971403605
+                },
+                {
+                    "longitude": 121.618689532214,
+                    "latitude": 25.069996423586
+                },
+                {
+                    "longitude": 121.618638654062,
+                    "latitude": 25.070012181564
+                },
+                {
+                    "longitude": 121.618551817545,
+                    "latitude": 25.070039003654
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.501420",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "松山區",
+            "district_code": "105",
+            "building_location": "民生東路三段110巷10號",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.544752009932,
+                    "latitude": 25.056719991871
+                }
+            ]
+        },
+        {
+            "id": 33,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.501861",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "中正區",
+            "district_code": "100",
+            "building_location": "臨沂街32巷6號",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.529384461012,
+                    "latitude": 25.039679540805
+                }
+            ]
+        },
+        {
+            "id": 34,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.502466",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "中山區",
+            "district_code": "104",
+            "building_location": "吉林路447巷5~17號(單) (5號、7號2樓、7號5樓解除列管)",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.531143571032,
+                    "latitude": 25.067414797408
+                },
+                {
+                    "longitude": 121.531183133615,
+                    "latitude": 25.067412240928
+                },
+                {
+                    "longitude": 121.531294110013,
+                    "latitude": 25.067414252585
+                },
+                {
+                    "longitude": 121.531330990387,
+                    "latitude": 25.067409307262
+                },
+                {
+                    "longitude": 121.530935029281,
+                    "latitude": 25.067417982531
+                },
+                {
+                    "longitude": 121.531011556057,
+                    "latitude": 25.067410438819
+                },
+                {
+                    "longitude": 121.531061763657,
+                    "latitude": 25.067415090775
+                }
+            ]
+        },
+        {
+            "id": 35,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.502980",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "內湖區",
+            "district_code": "114",
+            "building_location": "康寧路三段189巷66號",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.612752965471,
+                    "latitude": 25.071897774503
+                }
+            ]
+        },
+        {
+            "id": 36,
+            "import_date": {
+                "date": "2026-04-02 10:02:26.503557",
+                "timezone_type": 3,
+                "timezone": "Asia/Taipei"
+            },
+            "county": "臺北市",
+            "county_code": "63000",
+            "district": "內湖區",
+            "district_code": "114",
+            "building_location": "安泰街53巷1至11號地下室",
+            "note": "403黃單",
+            "geo": [
+                {
+                    "longitude": 121.617132928975,
+                    "latitude": 25.074679770076
+                },
+                {
+                    "longitude": 121.617344069116,
+                    "latitude": 25.074732743704
+                },
+                {
+                    "longitude": 121.617115494617,
+                    "latitude": 25.074371567496
+                },
+                {
+                    "longitude": 121.616997309782,
+                    "latitude": 25.074384098442
+                },
+                {
+                    "longitude": 121.617175760501,
+                    "latitude": 25.074443400406
+                },
+                {
+                    "longitude": 121.617034860708,
+                    "latitude": 25.074449267739
+                },
+                {
+                    "longitude": 121.617218592026,
+                    "latitude": 25.074537822546
+                },
+                {
+                    "longitude": 121.617066376664,
+                    "latitude": 25.074503917747
+                },
+                {
+                    "longitude": 121.617267793798,
+                    "latitude": 25.074600603001
+                },
+                {
+                    "longitude": 121.617105939247,
+                    "latitude": 25.074572355987
+                },
+                {
+                    "longitude": 121.617302494877,
+                    "latitude": 25.074678219424
+                }
+            ]
+        }
+    ]
+}

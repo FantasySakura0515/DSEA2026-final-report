@@ -1,0 +1,440 @@
+---
+title: "台北都更專案技術棧與資料清洗能力"
+subtitle: "把混亂的城市開放資料清成可查詢、可定位、可分析的資料產品"
+author: "江慶于414580662"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    theme: flatly
+  pdf_document:
+    latex_engine: xelatex
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    dev: ragg_png
+mainfont: STHeiti
+header-includes:
+  - \XeTeXlinebreaklocale "zh"
+  - \XeTeXlinebreakskip=0pt plus 1pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+
+callout <- function(class, content) {
+  if (knitr::is_html_output()) {
+    cat(sprintf('<div class="%s">\n%s\n</div>', class, content))
+  } else {
+    cat(sprintf("> %s\n", content))
+  }
+}
+```
+
+```{r html-style, results='asis', echo=FALSE}
+if (knitr::is_html_output()) {
+  cat('
+<style>
+body {
+  font-family: STHeiti, "Heiti TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.78;
+  color: #242424;
+}
+h1, h2, h3, h4 {
+  font-family: STHeiti, "Heiti TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-weight: 700;
+}
+.lead {
+  border-left: 7px solid #205375;
+  background: #f4f9fb;
+  padding: 16px 20px;
+  margin: 18px 0 24px 0;
+}
+.warning {
+  border-left: 7px solid #b85042;
+  background: #fff7f4;
+  padding: 16px 20px;
+  margin: 18px 0 24px 0;
+}
+.success {
+  border-left: 7px solid #2f7d4f;
+  background: #f4fbf6;
+  padding: 16px 20px;
+  margin: 18px 0 24px 0;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin: 16px 0 24px 0;
+}
+.metric-card {
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  padding: 14px 16px;
+  background: white;
+}
+.metric-card .label {
+  color: #666;
+  font-size: 14px;
+}
+.metric-card .value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #205375;
+  margin-top: 4px;
+}
+table {
+  font-size: 14px;
+}
+code {
+  color: #8a2d22;
+}
+</style>
+')
+}
+```
+
+```{r project-metrics}
+backend_py_files <- length(list.files("backend/app", pattern = "\\.py$", recursive = TRUE, full.names = TRUE))
+handler_files <- length(list.files("backend/app/handlers", pattern = "\\.py$", full.names = TRUE))
+model_files <- length(list.files("backend/app/models", pattern = "\\.py$", full.names = TRUE))
+cleaning_scripts <- length(list.files("backend/data", pattern = "cleaning\\.py$", full.names = TRUE))
+router_files <- list.files("backend/app/routers", pattern = "\\.py$", full.names = TRUE)
+endpoint_count <- 0
+for (f in router_files) {
+  text <- paste(readLines(f, warn = FALSE), collapse = "\n")
+  matches <- gregexpr("@router\\.get", text)[[1]]
+  if (matches[1] != -1) {
+    endpoint_count <- endpoint_count + length(matches)
+  }
+}
+```
+
+## 交付範圍
+
+```{r intro-callout, results='asis'}
+callout("lead", "本文件介紹本專案的整體技術棧與資料工程能力。專案由三個部分組成：Python FastAPI 後端服務、地址解析與地理編碼的清洗腳本、以及 R Markdown 行政區層級分析報告。目標是把台北市都市更新、地震危險建築物、海砂屋等髒資料清成可查詢、可定位、可分析的資料產品。")
+```
+
+這個專案的難點不是「把 JSON 讀出來」而已。原始資料包含大量地址文字、跨區描述、括號備註、門牌範圍、巢狀空間座標與缺漏欄位。如果不先清洗，後續 API、地圖、統計分析都會出現錯誤或偏差。
+
+## 技術棧
+
+以下表格整理本專案實際使用的技術，涵蓋後端服務、資料清洗腳本與 R Markdown 分析三個層次。
+
+```{r backend-stack}
+backend_stack <- data.frame(
+  類別 = c(
+    "API 框架",
+    "執行環境",
+    "套件管理",
+    "資料驗證",
+    "HTTP 資料擷取",
+    "空間資料處理",
+    "地理編碼",
+    "資料分析與報告",
+    "地圖視覺化",
+    "測試與品質",
+    "部署"
+  ),
+  技術 = c(
+    "FastAPI",
+    "Python 3.12、uvicorn",
+    "uv、uv.lock",
+    "Pydantic Models",
+    "httpx / AsyncClient",
+    "GeoJSON、Shapely、STRtree、Haversine",
+    "ArcGIS Geocoding API",
+    "R Markdown、httr2、dplyr、tidyr、readr",
+    "ggplot2、ragg、coord_quickmap、geoBoundaries TWN ADM2",
+    "pytest、ruff",
+    "Dockerfile"
+  ),
+  角色 = c(
+    "建立 REST API、Swagger 文件與資料查詢端點",
+    "提供可重現的後端執行環境",
+    "鎖定依賴版本，降低不同機器環境差異",
+    "把外部髒資料轉成有 schema 的穩定資料結構",
+    "擷取台北市開放資料與外部地理編碼服務",
+    "處理都市更新多邊形、附近搜尋與距離計算",
+    "將只有地址的資料補上經緯度",
+    "直接串接本機 API 產生分析表格與彙整資料",
+    "繪製 12 區行政區界 + 危建建物分布地圖（圖 5）",
+    "驗證 model 行為與維持程式碼品質",
+    "讓服務可被容器化部署"
+  )
+)
+
+knitr::kable(backend_stack, caption = "專案技術棧", align = "lll")
+```
+
+```{r metric-grid, results='asis'}
+metrics <- list(
+  c("後端 Python 檔案", backend_py_files),
+  c("API Handler 模組", handler_files),
+  c("資料模型模組", model_files),
+  c("GET API 端點", endpoint_count)
+)
+
+if (knitr::is_html_output()) {
+  cat('<div class="metric-grid">\n')
+  for (m in metrics) {
+    cat(sprintf('  <div class="metric-card"><div class="label">%s</div><div class="value">%s</div></div>\n', m[1], m[2]))
+  }
+  cat('</div>\n')
+} else {
+  metric_df <- data.frame(
+    指標 = sapply(metrics, `[`, 1),
+    數值 = sapply(metrics, `[`, 2)
+  )
+  print(knitr::kable(metric_df, caption = "後端專案規模指標", align = "lr"))
+}
+```
+
+## 後端分層架構
+
+後端採用分層設計，不把資料讀取、清洗、查詢與 API 回傳混在同一層。這讓資料源很髒時，仍能把外部混亂擋在 service / cleaning layer，對外提供穩定的 API 給上層分析使用。
+
+```{r architecture-table}
+architecture <- data.frame(
+  層級 = c(
+    "Router",
+    "Handler",
+    "Service",
+    "Model",
+    "Cleaning Scripts",
+    "Public Data"
+  ),
+  對應位置 = c(
+    "backend/app/router.py",
+    "backend/app/handlers",
+    "backend/app/services",
+    "backend/app/models",
+    "backend/data/*_cleaning.py",
+    "backend/public、backend/data/*.json"
+  ),
+  責任 = c(
+    "集中註冊 API endpoint，提供 Swagger 文件與查詢參數",
+    "封裝各資料主題的 API 操作，例如危建、海砂屋、都市更新",
+    "處理資料讀取、附近搜尋、空間計算與彙整邏輯",
+    "用 Pydantic 定義輸入輸出 schema，避免資料格式漂移",
+    "把原始髒資料轉成後端與分析端可用的乾淨資料",
+    "保存清洗後或預處理後的 JSON / GeoJSON 資料"
+  )
+)
+
+knitr::kable(architecture, caption = "後端分層架構", align = "lll")
+```
+
+## R 分析層
+
+清洗後的 API 資料由 R Markdown 報告以 `httr2` 串接讀入，再以 `dplyr` 與 `tidyr` 完成行政區層級的合併、缺漏值處理與危建總數計算，最後用 `ggplot2` 產生 5 張視覺化、`knitr::kable` 輸出表格、並以 `readr::write_csv` 將乾淨的合併資料輸出為 CSV 供後續使用。
+
+地圖視覺化（圖 5）疊加三層資料：底圖為 geoBoundaries TWN ADM2 行政區界（`/api/geojson/taipei-districts`），中層為清洗後的逐棟危建點位（`/api/geojson/earthquake-buildings`、`/api/geojson/chloride-ionized-concrete`），最上層為各區的中文標籤（位置由 Shapely `representative_point` 預先算入 GeoJSON properties，確保標籤落在多邊形內部）。
+
+這層的職責是分析與呈現：依賴後端 API 提供穩定的資料 schema，不重複處理地址文字或空間座標，讓資料工程與統計分析在不同層各司其職。
+
+## 原始資料為什麼很髒
+
+```{r warning-callout, results='asis'}
+callout("warning", "這批資料的困難點在於「它看起來像表格，但很多關鍵資訊其實藏在文字裡」。地址欄位同時承載門牌、範圍、樓層、備註與多棟建物；都市更新資料則包含跨區案件與複雜多邊形座標。如果直接拿來統計或上圖，結果很容易失真。")
+```
+
+```{r dirty-data}
+dirty_data <- data.frame(
+  髒資料問題 = c(
+    "一格地址包含多棟建築",
+    "門牌是範圍而非單點",
+    "頓號枚舉多個門牌",
+    "括號內混入行政備註",
+    "樓層文字干擾定位",
+    "台／臺用字不一致",
+    "都市更新案件跨行政區",
+    "缺少經緯度",
+    "座標可能是 Polygon 或 MultiPolygon"
+  ),
+  典型例子 = c(
+    "同一筆 building_location 描述多棟建物",
+    "16至22號、17至33之1號",
+    "2、4、6號",
+    "其中某棟撤銷列管等文字",
+    "1至5樓、地下一樓等資訊",
+    "台北市與臺北市混用",
+    "士林區,北投區",
+    "只有地址，沒有 longitude / latitude",
+    "都市更新範圍不是點，而是一片基地範圍"
+  ),
+  清洗作法 = c(
+    "拆成多筆可定位資料",
+    "用規則展開連續門牌",
+    "用 regex 展開枚舉門牌",
+    "移除不影響定位的括號備註",
+    "移除樓層資訊後再做地址解析",
+    "統一成同一種字形再 join / group by",
+    "拆開後重新彙總到各行政區",
+    "串接 ArcGIS Geocoding 補座標",
+    "用 Shapely 建成幾何物件並支援空間查詢"
+  )
+)
+
+knitr::kable(dirty_data, caption = "髒資料問題與清洗策略", align = "lll")
+```
+
+## 資料清洗能力
+
+### 地址解析：從文字描述變成可定位門牌
+
+地震危險建築物資料最麻煩的地方，是 `building_location` 不是乾淨地址，而是一段半結構化文字。清洗腳本會做以下處理：
+
+- 移除括號備註，避免「撤銷列管」等行政文字干擾定位。
+- 移除樓層描述，因為 geocoding 需要的是地址，不是樓層。
+- 以分號切段，處理同一筆資料中多個地址段落。
+- 記錄上一個道路名稱，讓後續只寫巷弄門牌的片段也能補齊路名。
+- 展開 `至` 表示的門牌範圍。
+- 展開 `、` 表示的多個門牌。
+
+這讓原本一筆模糊文字可以被拆成多個可定位地址，大幅提高資料可用性。
+
+### 地理編碼：補上原始資料沒有的座標
+
+很多城市開放資料只提供地址，沒有經緯度。後端透過 ArcGIS Geocoding API，把「縣市 + 地址」轉成 WGS84 經緯度。
+
+這一步的價值是把資料從「只能讀文字」提升為「可以做空間分析」：
+
+- 可以在地圖上定位。
+- 可以與都市更新範圍疊合。
+- 可以做附近搜尋。
+- 可以輸出給 R Markdown 做行政區分析與視覺化。
+
+### 空間查詢：都市更新不是點，是面
+
+都市更新資料常是基地範圍，不是單一座標點。後端使用 Shapely 將座標建立成 Polygon 或 MultiPolygon，再用 STRtree 建立空間索引。
+
+這代表系統可以回答更接近真實城市問題的查詢：
+
+- 使用者座標是否落在某都市更新範圍內。
+- 使用者附近一定半徑內有哪些都市更新案件。
+- 都市更新案件距離指定座標多遠。
+
+```{r cleaning-pipeline}
+pipeline <- data.frame(
+  階段 = c(
+    "擷取",
+    "驗證",
+    "文字清理",
+    "地址展開",
+    "座標補齊",
+    "空間化",
+    "API 化",
+    "分析化"
+  ),
+  輸入 = c(
+    "台北市開放資料 / 本地 JSON",
+    "原始 JSON",
+    "地址與備註混雜文字",
+    "範圍、枚舉、多地址文字",
+    "地址",
+    "座標陣列與 GeoJSON",
+    "清洗後資料",
+    "本機 API"
+  ),
+  輸出 = c(
+    "原始資料",
+    "符合 Pydantic schema 的資料",
+    "較乾淨的地址字串",
+    "多筆可定位門牌",
+    "longitude / latitude",
+    "Point / Polygon / MultiPolygon",
+    "FastAPI endpoint",
+    "R Markdown 表格與圖表"
+  )
+)
+
+knitr::kable(pipeline, caption = "資料清洗與服務化流程", align = "lll")
+```
+
+## API 能力
+
+清洗後的資料透過 FastAPI 包裝成穩定服務，而不是散落在不同腳本裡。
+
+```{r api-capability}
+api_capability <- data.frame(
+  API類型 = c(
+    "地震危險建築物",
+    "海砂屋",
+    "都市更新",
+    "危建建物 GeoJSON",
+    "行政區界 GeoJSON",
+    "附近搜尋",
+    "健康檢查",
+    "分析報告串接"
+  ),
+  能力 = c(
+    "回傳列管危建清單與單筆資料",
+    "回傳高氯離子混凝土建築資料",
+    "依行政區整理都市更新案件與案件數",
+    "輸出可被地圖或空間分析使用的 FeatureCollection",
+    "提供 12 個行政區的多邊形與標籤位置，作為地圖底圖",
+    "依座標與半徑搜尋附近都市更新案件",
+    "確認服務狀態與版本",
+    "R Markdown 可直接呼叫 localhost API 產生分析報告與地圖"
+  )
+)
+
+knitr::kable(api_capability, caption = "後端 API 能力", align = "ll")
+```
+
+## 為什麼這是強資料清洗能力
+
+```{r success-callout, results='asis'}
+callout("success", "本專案的資料清洗不是表面上的欄位改名，而是把原本難以計算、難以定位、難以合併的城市資料，轉成後端 API、空間查詢與統計分析都能使用的穩定資料層。")
+```
+
+具體來說，清洗能力體現在四件事：
+
+1. **可定位**：原始地址文字經過解析與 geocoding 後，可以變成經緯度。
+2. **可合併**：行政區名稱、跨區案件與台臺用字被標準化後，可以做 join 與 group by。
+3. **可查詢**：都市更新多邊形經過 Shapely 處理後，可以做附近搜尋與距離計算。
+4. **可分析**：R Markdown 可以直接呼叫 API，產出危建與都更追趕率分析。
+
+## 技術亮點摘要
+
+```{r highlight-table}
+highlights <- data.frame(
+  亮點 = c(
+    "FastAPI 服務化",
+    "Pydantic schema 驗證",
+    "半結構化地址解析",
+    "ArcGIS 地理編碼",
+    "Shapely 空間計算",
+    "行政區界整合與地圖視覺化",
+    "R Markdown 分析串接"
+  ),
+  專案價值 = c(
+    "把清洗成果提供成穩定 API，而不是一次性檔案",
+    "避免髒資料欄位漂移造成前後端與分析失敗",
+    "把難處理的地址文字拆成可定位資料",
+    "補上原始資料缺少的經緯度",
+    "讓都市更新範圍可以被附近搜尋與距離計算使用",
+    "整合 geoBoundaries 行政區界與危建點位，呈現空間叢集",
+    "同一份後端資料可直接產出分析報告與視覺化"
+  )
+)
+
+knitr::kable(highlights, caption = "後端與資料清洗技術亮點", align = "ll")
+```
+
+## 結語
+
+這個專案真正的價值，是把非常髒的都市開放資料清成可重複使用的資料產品。後端負責資料品質控管、地址解析、座標補齊與空間查詢；R Markdown 報告承接後端輸出，完成行政區層級的合併、視覺化與追趕率分析。
+
+```{r closing-callout, results='asis'}
+callout("lead", "我們把原本混亂、難定位、難合併、難分析的城市資料，整理成可驗證、可查詢、可定位、可分析的資料產品，並透過 R Markdown 完成行政區層級的分析與報告。")
+```

@@ -1,0 +1,711 @@
+---
+title: "台北市危老建築與都市更新的賽跑：危建最多的地區，都更有在追趕嗎？"
+author: "R 語言資料分析"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    theme: flatly
+  pdf_document:
+    latex_engine: xelatex
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_caption: true
+    dev: ragg_png
+mainfont: STHeiti
+header-includes:
+  - \XeTeXlinebreaklocale "zh"
+  - \XeTeXlinebreakskip=0pt plus 1pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10.5,
+  fig.height = 6.2,
+  dpi = 160,
+  out.width = "100%"
+)
+
+callout <- function(class, content) {
+  if (knitr::is_html_output()) {
+    cat(sprintf('<div class="%s">\n%s\n</div>', class, content))
+  } else {
+    cat(sprintf("> %s\n", content))
+  }
+}
+```
+
+```{r html-style, results='asis', echo=FALSE}
+if (knitr::is_html_output()) {
+  cat('
+<style>
+body {
+  font-family: STHeiti, "Heiti TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  line-height: 1.75;
+}
+h1, h2, h3, h4 {
+  font-family: STHeiti, "Heiti TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-weight: 700;
+}
+.summary-box {
+  border-left: 6px solid #b2182b;
+  background: #fbf7f4;
+  padding: 14px 18px;
+  margin: 18px 0 24px 0;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 16px 0 24px 0;
+}
+.metric-card {
+  border: 1px solid #e6e2dc;
+  border-radius: 6px;
+  padding: 14px 16px;
+  background: #ffffff;
+}
+.metric-card .label {
+  color: #6f6f6f;
+  font-size: 14px;
+}
+.metric-card .value {
+  color: #222222;
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+table {
+  font-size: 14px;
+}
+</style>
+')
+}
+```
+
+## 研究問題
+
+台北市同時面對兩種老舊建物風險：一類是被列管的地震危險建築物，另一類是海砂屋。都市更新理論上應該是處理老舊建物與居住風險的重要工具，但案件是否集中在危建較多的行政區，仍需要用資料檢查。
+
+```{r summary-callout, results='asis', echo=FALSE}
+callout("summary-box", "本報告以行政區為比較單位，將「地震危險建築物」與「海砂屋」合併為危建壓力。後端 API 同時提供兩個都更計數欄位：record_count 是包含同案件多次公告的紀錄條目數，case_count 是依案件名稱去重後的不重複案件數。為避免分子被多次公告放大，本報告以 case_count 作為「都更案件數」，再用「都更案件數 / 危建總數」觀察各區危建壓力與都更案件量是否大致對得上。此指標不是因果推論，也無法等同於實際處理進度。")
+```
+
+## 套件載入
+
+以下程式碼載入 API 呼叫、資料整理、視覺化、表格輸出與座標格式化所需套件。
+
+```{r packages}
+library(httr2)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(scales)
+```
+
+## 資料導入
+
+以下程式碼設定本機 FastAPI 端點，並以 `httr2` 呼叫三份資料。執行前請先確認後端服務已啟動於 `http://localhost:8000`。
+
+```{r api-settings}
+base_url <- "http://localhost:8000"
+
+earthquake_url <- paste0(base_url, "/api/earthquake-buildings")
+chloride_url <- paste0(base_url, "/api/chloride-ionized-concrete")
+urban_update_url <- paste0(base_url, "/api/urban-update")
+```
+
+以下程式碼先呼叫 `/api/health` 確認後端可達，避免後續 chunk 因連線錯誤而停在難讀的 httr2 訊息。
+
+```{r health-check}
+tryCatch(
+  request(paste0(base_url, "/api/health")) |>
+    req_timeout(3) |>
+    req_perform(),
+  error = function(e) {
+    stop(
+      "後端未啟動於 ", base_url,
+      "。請先在 backend/ 執行 `uv run uvicorn app.main:app --reload` 再 knit 此報告。",
+      call. = FALSE
+    )
+  }
+)
+```
+
+以下程式碼呼叫 API，並只保留本研究會使用的欄位。都市更新 API 內含較大的 `records` 欄位，這裡不納入分析表，以免 HTML 報告被大量座標資料淹沒。`case_count` 是後端依案件名稱去重後的不重複案件數，做為本研究的「都更案件數」。
+
+```{r import-data}
+earthquake_response <- request(earthquake_url) |>
+  req_perform() |>
+  resp_body_json(simplifyVector = TRUE)
+
+chloride_response <- request(chloride_url) |>
+  req_perform() |>
+  resp_body_json(simplifyVector = TRUE)
+
+urban_update_response <- request(urban_update_url) |>
+  req_perform() |>
+  resp_body_json(simplifyVector = TRUE)
+
+earthquake_raw <- as.data.frame(earthquake_response$result$results) |>
+  select(id, county, district, building_location, note)
+
+chloride_raw <- as.data.frame(chloride_response$result$results) |>
+  select(id, county, district, building_name, purpose, organizer)
+
+urban_update_raw <- as.data.frame(urban_update_response$data) |>
+  select(districts, case_count, record_count)
+```
+
+以下程式碼印出地震危險建築物資料前六筆與資料筆數。
+
+```{r earthquake-head}
+kable(
+  head(earthquake_raw),
+  caption = paste0("地震危險建築物資料前六筆；原始筆數：", comma(nrow(earthquake_raw)), " 筆")
+)
+```
+
+以下程式碼印出海砂屋資料前六筆與資料筆數。
+
+```{r chloride-head}
+kable(
+  head(chloride_raw),
+  caption = paste0("海砂屋資料前六筆；原始筆數：", comma(nrow(chloride_raw)), " 筆")
+)
+```
+
+以下程式碼印出都市更新資料前六筆與資料筆數。
+
+```{r urban-update-head}
+kable(
+  head(urban_update_raw),
+  caption = paste0("都市更新資料前六筆；原始筆數：", comma(nrow(urban_update_raw)), " 筆")
+)
+```
+
+## 資料清理
+
+清理重點有三個。第一，統一「台／臺」用字，避免同一行政區被分成兩類。第二，移除行政區缺漏或空白的資料，因為本研究的所有比較都依賴行政區。第三，都市更新資料若出現跨區案件，例如「士林區,北投區」，會拆成兩筆，代表該案件同時納入兩個行政區的案件量。
+
+以下程式碼建立名稱標準化函數，統一「臺／台」並去除前後空白。
+
+```{r cleaning-helper}
+# 統一台/臺用字為「臺」，與 codebook 的描述一致；對下游的 join、group_by 與圖表標籤都使用同一形式
+normalize_name <- function(x) {
+  x <- as.character(x)
+  x <- gsub("台", "臺", x)
+  trimws(x)
+}
+```
+
+以下程式碼清理地震危險建築物資料：限定台北市、移除無行政區資料，並以 `id` 去除重複紀錄。
+
+```{r clean-earthquake}
+earthquake_clean <- earthquake_raw |>
+  mutate(
+    county = normalize_name(county),
+    district = normalize_name(district)
+  ) |>
+  filter(
+    county == "臺北市",       # 研究範圍限定台北市，避免其他縣市干擾比較
+    !is.na(district),         # district 是後續合併鍵，缺漏會導致無法分區
+    district != ""            # 空白行政區沒有分析意義
+  ) |>
+  distinct(id, .keep_all = TRUE) # 同一 id 重複時只計一次，避免高估危建數
+
+kable(
+  head(earthquake_clean),
+  caption = paste0("清理後地震危險建築物前六筆；清理後筆數：", comma(nrow(earthquake_clean)), " 筆")
+)
+```
+
+以下程式碼清理海砂屋資料：限定台北市、移除無行政區資料，並以 `id` 去除重複紀錄。
+
+```{r clean-chloride}
+chloride_clean <- chloride_raw |>
+  mutate(
+    county = normalize_name(county),
+    district = normalize_name(district)
+  ) |>
+  filter(
+    county == "臺北市",       # 只分析台北市資料，讓三份資料的空間範圍一致
+    !is.na(district),         # 行政區缺漏時無法與其他資料合併
+    district != ""            # 移除空白行政區，避免產生無名稱分類
+  ) |>
+  distinct(id, .keep_all = TRUE) # 同一 id 重複時只保留一筆
+
+kable(
+  head(chloride_clean),
+  caption = paste0("清理後海砂屋前六筆；清理後筆數：", comma(nrow(chloride_clean)), " 筆")
+)
+```
+
+以下程式碼清理都市更新資料：統一行政區名稱、拆開跨區案件，並彙總各區案件數。
+使用 `case_count`（依案件名稱去重後的不重複案件數）而非 `record_count`，避免同案件多次公告紀錄被當成多件。
+
+```{r clean-urban-update}
+urban_update_clean <- urban_update_raw |>
+  transmute(
+    district = normalize_name(districts),
+    case_count = as.numeric(case_count)
+  ) |>
+  separate_rows(district, sep = "[,，、/]+") |>
+  mutate(district = normalize_name(district)) |>
+  filter(
+    !is.na(district),         # 行政區是與危建資料合併的共同欄位
+    district != "",           # 空白行政區無法進行行政區層級比較
+    !is.na(case_count)        # 案件數缺漏時無法計算追趕率
+  ) |>
+  group_by(district) |>
+  summarise(
+    都更案件數 = sum(case_count, na.rm = TRUE), # 跨區案件會計入每個涉及行政區
+    .groups = "drop"
+  )
+
+kable(
+  head(urban_update_clean),
+  caption = paste0("清理後都市更新資料前六筆；行政區數：", comma(nrow(urban_update_clean)), " 區")
+)
+```
+
+## 描述性統計
+
+以下程式碼計算各行政區的地震危建數、海砂屋數與危建總數，並用 `kable` 輸出排序後的表格。
+
+```{r descriptive-table}
+earthquake_count <- earthquake_clean |>
+  count(district, name = "地震危建數")
+
+chloride_count <- chloride_clean |>
+  count(district, name = "海砂屋數")
+
+hazard_summary <- full_join(earthquake_count, chloride_count, by = "district") |>
+  mutate(
+    地震危建數 = replace_na(地震危建數, 0),
+    海砂屋數 = replace_na(海砂屋數, 0),
+    危建總數 = 地震危建數 + 海砂屋數,
+    危建占比 = 危建總數 / sum(危建總數) * 100
+  ) |>
+  arrange(desc(危建總數), district)
+
+kable(
+  hazard_summary,
+  caption = "台北市各行政區危險建築數量統計",
+  col.names = c("行政區", "地震危建數", "海砂屋數", "危建總數", "危建占比（%）"),
+  digits = 1,
+  align = "lrrrr"
+)
+```
+
+上表按危建總數降冪排序，呈現出兩個層次的觀察。其一，危建分布並不均勻：北部行政區（北投、士林）的列管壓力明顯高於東側（內湖、南港）與南端（文山）。其二，地震危建與海砂屋的高列管區並不完全重疊——海砂屋多見於中山、南港等區，與地震危建的北側分布有所差異。因此後續以「危建總數」做為彙整指標時，需留意它代表的是兩類建物的累加，而非單一現象。
+
+## 合併分析
+
+以下程式碼以 `district` 做 `full_join`，合併三份資料，並計算 `危建總數 = 地震危建數 + 海砂屋數` 與 `都更追趕率 = 都更案件數 / 危建總數 * 100`。
+
+```{r merge-analysis}
+analysis_data <- earthquake_count |>
+  full_join(chloride_count, by = "district") |>
+  full_join(urban_update_clean, by = "district") |>
+  mutate(
+    地震危建數 = replace_na(地震危建數, 0),
+    海砂屋數 = replace_na(海砂屋數, 0),
+    都更案件數 = replace_na(都更案件數, 0),
+    危建總數 = 地震危建數 + 海砂屋數,
+    都更追趕率 = if_else(
+      危建總數 > 0,
+      都更案件數 / 危建總數 * 100,
+      NA_real_
+    ),
+    都更缺口 = 都更案件數 - 危建總數
+  ) |>
+  arrange(desc(危建總數), district)
+
+kable(
+  analysis_data,
+  caption = "台北市危建與都市更新整合分析",
+  col.names = c("行政區", "地震危建數", "海砂屋數", "都更案件數", "危建總數", "都更追趕率（%）", "都更缺口"),
+  digits = 1,
+  align = "lrrrrrr"
+)
+```
+
+合併表立即顯示一個本研究核心的單位落差：每個行政區的都更案件數都明顯高於該區危建總數。「都更追趕率」與「都更缺口」雖以兩者相除或相減而得，但兩個原始數的單位並不對等——一件都更案件可涵蓋多棟建物，並橫跨從計畫核定、施工中到完工的不同程序階段；而危建總數是現行的個別建物列管數。因此後續的追趕率排名應放在相對尺度上理解，不可解讀為「都更已處理 X% 的危建」。
+
+以下程式碼建立報告摘要與結論會使用的排名資料。
+
+```{r ranking-objects}
+top_hazard <- analysis_data |>
+  filter(危建總數 == max(危建總數, na.rm = TRUE)) |>
+  slice(1)
+
+lowest_catchup <- analysis_data |>
+  filter(危建總數 > 0, !is.na(都更追趕率)) |>
+  arrange(都更追趕率, desc(危建總數), district) |>
+  slice(1)
+
+highest_catchup <- analysis_data |>
+  filter(危建總數 > 0, !is.na(都更追趕率)) |>
+  arrange(desc(都更追趕率), desc(危建總數), district) |>
+  slice(1)
+
+total_hazard <- sum(analysis_data$危建總數, na.rm = TRUE)
+total_urban_update <- sum(analysis_data$都更案件數, na.rm = TRUE)
+citywide_catchup_rate <- total_urban_update / total_hazard * 100
+```
+
+```{r summary-metrics, results='asis', echo=FALSE}
+metrics <- list(
+  c("全市危建總數", comma(total_hazard)),
+  c("全市都更案件數", comma(total_urban_update)),
+  c("全市追趕率", percent(citywide_catchup_rate / 100, accuracy = 0.1)),
+  c("危建最多行政區", top_hazard$district)
+)
+
+if (knitr::is_html_output()) {
+  cat('<div class="metric-grid">\n')
+  for (m in metrics) {
+    cat(sprintf('  <div class="metric-card"><div class="label">%s</div><div class="value">%s</div></div>\n', m[1], m[2]))
+  }
+  cat('</div>\n')
+} else {
+  metric_df <- data.frame(
+    指標 = sapply(metrics, `[`, 1),
+    數值 = sapply(metrics, `[`, 2)
+  )
+  print(knitr::kable(metric_df, caption = "全市危建與都更彙總指標", align = "lr"))
+}
+```
+
+全市追趕率 `r percent(citywide_catchup_rate / 100, accuracy = 0.1)` 看似驚人，但要小心解讀：分子 `r comma(total_urban_update)` 件都更案件包含已核定、施工中、尚未動工等所有階段，且每件案件可能涵蓋多棟建物或整片基地；分母 `r comma(total_hazard)` 件則是逐棟列管的現行危建。分子分母單位不對等，分母又小，本就容易放大比值。下節的視覺化從兩個角度切入：圖 1 至圖 3 呈現各類危建與都更案件數的絕對量分布，圖 4 與圖 5 則從相對指標（追趕率）與空間位置角度進一步觀察。
+
+## 視覺化
+
+以下程式碼設定圖表共用主題，指定中文字體為 `STHeiti`。
+
+```{r plot-theme}
+theme_set(
+  theme_minimal(base_family = "STHeiti") +
+    theme(
+      plot.title = element_text(face = "bold", size = 16),
+      plot.subtitle = element_text(color = "gray35", size = 11),
+      axis.title = element_text(size = 12),
+      axis.text = element_text(size = 10),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor = element_blank(),
+      legend.position = "top"
+    )
+)
+```
+
+以下程式碼繪製圖1：各區地震危建數量長條圖，紅色代表地震危險建築物。
+
+```{r plot-earthquake}
+earthquake_plot_data <- analysis_data |>
+  filter(地震危建數 > 0) |>
+  arrange(地震危建數)
+
+ggplot(
+  earthquake_plot_data,
+  aes(x = reorder(district, 地震危建數), y = 地震危建數)
+) +
+  geom_col(fill = "#b2182b", width = 0.72) +
+  geom_text(
+    aes(label = comma(地震危建數)),
+    hjust = -0.18,
+    family = "STHeiti",
+    size = 3.6
+  ) +
+  coord_flip() +
+  scale_y_continuous(labels = comma, expand = expansion(mult = c(0, 0.14))) +
+  labs(
+    title = "圖1：台北市各區地震危險建築物數量",
+    subtitle = "地震危建集中在哪些行政區，是危建壓力的第一層觀察",
+    x = "行政區",
+    y = "地震危建數量"
+  )
+```
+
+地震危建呈現明顯的北重南輕：北投與士林兩區合計即占大部分案件。這兩區面積較廣、包含較多舊聚落，與本市北側街廓的歷史發展時序一致。相對地，內湖、南港、文山、大同、大安等區僅有少數列管紀錄，可能反映建物結構年代較新或尚未進入列管程序。
+
+以下程式碼繪製圖2：各區海砂屋數量長條圖，橘色代表海砂屋。
+
+```{r plot-chloride}
+chloride_plot_data <- analysis_data |>
+  filter(海砂屋數 > 0) |>
+  arrange(海砂屋數)
+
+ggplot(
+  chloride_plot_data,
+  aes(x = reorder(district, 海砂屋數), y = 海砂屋數)
+) +
+  geom_col(fill = "#f46d43", width = 0.72) +
+  geom_text(
+    aes(label = comma(海砂屋數)),
+    hjust = -0.18,
+    family = "STHeiti",
+    size = 3.6
+  ) +
+  coord_flip() +
+  scale_y_continuous(labels = comma, expand = expansion(mult = c(0, 0.18))) +
+  labs(
+    title = "圖2：台北市各區海砂屋數量",
+    subtitle = "海砂屋數量較少，但仍是需要獨立觀察的建物安全問題",
+    x = "行政區",
+    y = "海砂屋數量"
+  )
+```
+
+海砂屋的整體規模明顯小於地震危建，且分布更分散。中山與南港是列管最多的區，這與地震危建的高列管區（北投、士林）並不重疊，也意味著海砂屋與地震危建是兩種獨立的建物安全議題：前者與當年特定建商、砂石來源等供應鏈因素有關，後者則與結構耐震與屋齡有關，兩者的成因在地理上不必然一致。
+
+以下程式碼繪製圖3：危建總數與都市更新案件數的並排長條圖，用來比較各區危建壓力與都更案件量。
+
+```{r plot-hazard-vs-urban-bars}
+district_order <- analysis_data |>
+  arrange(危建總數) |>
+  pull(district)
+
+bar_compare_data <- analysis_data |>
+  mutate(district = factor(district, levels = district_order)) |>
+  select(district, 危建總數, 都更案件數) |>
+  pivot_longer(
+    cols = c(危建總數, 都更案件數),
+    names_to = "指標",
+    values_to = "數量"
+  )
+
+ggplot(
+  bar_compare_data,
+  aes(x = district, y = 數量, fill = 指標)
+) +
+  geom_col(position = position_dodge(width = 0.74), width = 0.64) +
+  coord_flip() +
+  scale_y_continuous(labels = comma, expand = expansion(mult = c(0, 0.06))) +
+  scale_fill_manual(values = c("危建總數" = "#b2182b", "都更案件數" = "#2166ac")) +
+  labs(
+    title = "圖3：台北市各區危建總數與都市更新案件數比較",
+    subtitle = "同一行政區內，紅色是危建壓力，藍色是都市更新案件量",
+    x = "行政區",
+    y = "數量",
+    fill = "指標"
+  )
+```
+
+並排比較最直觀地呈現本研究的單位落差問題：在所有行政區中，藍色長條（都更案件數）都遠高於紅色長條（危建總數）。這個視覺差距乍看像是「都更已嚴重超過危建」，但兩條長條的單位不同——一件都更案件可涵蓋多棟建物或整片基地，而危建總數則是逐棟列管的個別建物。因此圖 3 不應被解讀為「都更超前危建」，它的真正用途是提醒後續的追趕率指標必須放在相對尺度上理解。
+
+以下程式碼繪製圖4：都更追趕率排名，紅色代表追趕率較低、綠色代表追趕率較高。
+
+
+```{r plot-catchup-rate}
+catchup_plot_data <- analysis_data |>
+  filter(危建總數 > 0, !is.na(都更追趕率)) |>
+  arrange(都更追趕率)
+
+ggplot(
+  catchup_plot_data,
+  aes(x = reorder(district, 都更追趕率), y = 都更追趕率, fill = 都更追趕率)
+) +
+  geom_col(width = 0.72) +
+  geom_text(
+    aes(label = percent(都更追趕率 / 100, accuracy = 0.1)),
+    hjust = -0.12,
+    family = "STHeiti",
+    size = 3.4
+  ) +
+  coord_flip() +
+  scale_y_continuous(labels = label_percent(scale = 1), expand = expansion(mult = c(0, 0.18))) +
+  scale_fill_gradient(
+    low = "#b2182b",
+    high = "#1a9850",
+    labels = label_percent(scale = 1)
+  ) +
+  labs(
+    title = "圖4：台北市各區都市更新追趕率排名",
+    subtitle = "追趕率 = 都更案件數 / 危建總數 * 100；只呈現有危建紀錄的行政區",
+    x = "行政區",
+    y = "都更追趕率",
+    fill = "追趕率"
+  )
+```
+
+追趕率排名顯示各區之間有明顯落差。最低者 **`r lowest_catchup$district`**（`r percent(lowest_catchup$都更追趕率 / 100, accuracy = 0.1)`）相對於該區 `r comma(lowest_catchup$危建總數)` 件危建，都更案件量是 12 區中相對最少的；最高者 **`r highest_catchup$district`**（`r percent(highest_catchup$都更追趕率 / 100, accuracy = 0.1)`）則是因為危建數極低（分母小）造成的極端值。換句話說，追趕率高並不必然代表「都更做得多」，也可能代表「危建少」；追趕率低也未必代表政策怠惰，而可能反映都更案件較少落在該區。真正值得關注的，是同時具有高危建總數與相對較低追趕率的區位，這類區位是後續政策盤點與資源配置的優先觀察對象。
+
+```{r map-pagebreak, results='asis', echo=FALSE}
+if (knitr::is_latex_output()) cat("\\newpage\n")
+```
+
+以下程式碼繪製圖5：台北市危建建物地理分布地圖。底圖為 12 個行政區的真實邊界（資料來源：geoBoundaries TWN ADM2），紅色點為地震危建、橘色點為海砂屋。
+
+```{r plot-hazard-map, fig.width=7, fig.height=9, out.width="100%"}
+flatten_coords <- function(x) {
+  probe <- x
+  while (is.list(probe) && length(probe) > 0) {
+    first <- probe[[1]]
+    if (is.numeric(first) && length(first) == 1) break
+    probe <- first
+  }
+  dim_per_pt <- length(probe)
+  if (dim_per_pt < 2) return(NULL)
+  v <- unlist(x)
+  if (length(v) %% dim_per_pt != 0) return(NULL)
+  m <- matrix(v, ncol = dim_per_pt, byrow = TRUE)
+  m[, 1:2, drop = FALSE]
+}
+
+fetch_hazard_points <- function(url, type_label) {
+  resp <- request(url) |>
+    req_perform() |>
+    resp_body_json(simplifyVector = FALSE)
+
+  rows <- list()
+  for (feature in resp$features) {
+    geom <- feature$geometry
+    if (is.null(geom) || is.null(geom$coordinates)) next
+
+    district <- feature$properties$district
+    if (is.null(district)) district <- "未知區"
+
+    coords_list <- if (geom$type == "MultiPoint") geom$coordinates else list(geom$coordinates)
+
+    for (coord in coords_list) {
+      if (length(coord) < 2) next
+      lon <- coord[[1]]
+      lat <- coord[[2]]
+      if (is.null(lon) || is.null(lat)) next
+      if (lon == 0 || lat == 0) next
+      rows[[length(rows) + 1L]] <- data.frame(
+        longitude = lon, latitude = lat,
+        district = district, type = type_label
+      )
+    }
+  }
+  if (length(rows) == 0) return(NULL)
+  do.call(rbind, rows)
+}
+
+fetch_district_polygons <- function(url) {
+  resp <- request(url) |>
+    req_perform() |>
+    resp_body_json(simplifyVector = FALSE)
+
+  poly_rows <- list()
+  label_rows <- list()
+  for (feature in resp$features) {
+    name <- feature$properties$district
+    label_rows[[length(label_rows) + 1L]] <- data.frame(
+      district = name,
+      longitude = feature$properties$label_lon,
+      latitude = feature$properties$label_lat
+    )
+
+    geom <- feature$geometry
+    polys <- if (geom$type == "Polygon") list(geom$coordinates) else geom$coordinates
+    for (pi in seq_along(polys)) {
+      ring <- polys[[pi]][[1]]
+      m <- flatten_coords(ring)
+      if (is.null(m) || nrow(m) == 0) next
+      poly_rows[[length(poly_rows) + 1L]] <- data.frame(
+        longitude = m[, 1], latitude = m[, 2],
+        district = name,
+        group_id = sprintf("%s-%d", name, pi)
+      )
+    }
+  }
+  list(
+    polygons = do.call(rbind, poly_rows),
+    labels = do.call(rbind, label_rows)
+  )
+}
+
+hazard_points <- bind_rows(
+  fetch_hazard_points(paste0(base_url, "/api/geojson/earthquake-buildings"), "地震危建"),
+  fetch_hazard_points(paste0(base_url, "/api/geojson/chloride-ionized-concrete"), "海砂屋")
+)
+
+district_data <- fetch_district_polygons(paste0(base_url, "/api/geojson/taipei-districts"))
+district_polys <- district_data$polygons
+label_df <- district_data$labels
+
+ggplot() +
+  geom_polygon(
+    data = district_polys,
+    aes(x = longitude, y = latitude, group = group_id),
+    fill = "gray94", color = "gray45", linewidth = 0.35
+  ) +
+  geom_point(
+    data = hazard_points,
+    aes(x = longitude, y = latitude, color = type),
+    alpha = 0.85, size = 2.2
+  ) +
+  geom_text(
+    data = label_df,
+    aes(x = longitude, y = latitude, label = district),
+    family = "STHeiti", color = "gray15", size = 3.4,
+    fontface = "bold"
+  ) +
+  coord_quickmap() +
+  scale_color_manual(values = c("地震危建" = "#b2182b", "海砂屋" = "#e08214")) +
+  labs(
+    title = "圖5：台北市危建建物地理分布",
+    subtitle = paste0(
+      "共 ", comma(nrow(hazard_points)), " 個地理編碼成功的點位；",
+      "底圖：geoBoundaries TWN ADM2 行政區界"
+    ),
+    x = "經度",
+    y = "緯度",
+    color = "危建類型"
+  )
+```
+
+地圖視角揭示行政區彙總所看不到的空間結構。地震危建並非平均散落，而是形成兩個明顯叢集：一個位於北投至士林一帶（地圖左上），另一個則在中山、松山、信義交界處（地圖中央偏南）。海砂屋（橘點）則零星散落於中山、南港等區，與地震危建的叢集位置部分接近但不完全重疊。這些建物熱點與行政區界並不一致，表示危建在實際空間上是跨區的帶狀問題，以行政區為單位的彙整可能會切割掉這個地理現象——這是本研究在使用「行政區為比較單位」時必須承認的空間粒度限制。
+
+## 輸出乾淨資料
+
+合併後的行政區層級分析資料以 CSV 格式輸出至 `Data/` 資料夾，檔名加上 knit 當日日期方便日後版本追蹤。各欄位的意義整理在專案根目錄的 `codebook.md`。
+
+```{r export-data}
+if (!dir.exists("Data")) {
+  dir.create("Data")
+}
+
+clean_csv_path <- file.path("Data", paste0("clean_data_", Sys.Date(), ".csv"))
+write_csv(analysis_data, clean_csv_path)
+message("已輸出：", clean_csv_path)
+```
+
+## 結論
+
+### 主要結果
+
+本次分析共納入台北市地震危險建築物 `r comma(nrow(earthquake_clean))` 筆、海砂屋 `r comma(nrow(chloride_clean))` 筆，合計危建 `r comma(total_hazard)` 件；都市更新案件經行政區彙總後共 `r comma(total_urban_update)` 件，全市追趕率為 `r percent(citywide_catchup_rate / 100, accuracy = 0.1)`。
+
+危建總數最多的行政區是 **`r top_hazard$district`**，共有 **`r comma(top_hazard$危建總數)`** 件危建，其中地震危建 **`r comma(top_hazard$地震危建數)`** 件、海砂屋 **`r comma(top_hazard$海砂屋數)`** 件；該區都市更新案件數為 **`r comma(top_hazard$都更案件數)`** 件，追趕率為 **`r percent(top_hazard$都更追趕率 / 100, accuracy = 0.1)`**。
+
+在有危建紀錄的行政區中，都更追趕率最低的是 **`r lowest_catchup$district`**（`r percent(lowest_catchup$都更追趕率 / 100, accuracy = 0.1)`），代表相對於目前列管的危建數量，都更案件量最沒有跟上；追趕率最高的是 **`r highest_catchup$district`**（`r percent(highest_catchup$都更追趕率 / 100, accuracy = 0.1)`），但其極端高值是分母（危建總數）較小所致，並非單純代表都更施行得最積極。
+
+### 三點觀察
+
+第一，**危建分布不均**。地震危建集中於北部（北投、士林為主），海砂屋則散見於中山、南港等區，兩類建物的高列管區並不重疊，意味著「危建壓力」不能用單一現象代表。
+
+第二，**都更案件數遠多於危建總數，但兩者單位不對等**。每個行政區的都更案件量（藍色長條，圖 3）皆遠高於該區危建總數（紅色長條），但這並非「都更已處理完所有危建」的意思。一件都更案件可涵蓋多棟建物，並橫跨從計畫核定到完工的不同階段，因此「都更案件數 / 危建總數」只能作為相對指標，不可解讀為實質處理進度。
+
+第三，**地理叢集跨越行政區界**。圖 5 的地圖顯示危建建物在空間上形成兩個叢集：北投至士林一帶，以及中山、松山、信義交界處。這些熱點與行政區界並不一致，提示危建問題實際上是跨區的帶狀現象，以行政區為彙整單位雖便於政策對話，但會切割掉地理上的連續性。
+
+### 限制與後續方向
+
+本研究的限制有三：
+
+1. 原始資料反映的是**現行列管狀態**，並非歷史累積；資料更新後，數值可能小幅變動。
+2. 地址解析雖已涵蓋路、街、巷弄、範圍門牌、奇偶區段等多種寫法，仍可能在未來資料出現新格式時遺漏部分紀錄。
+3. 都市更新案件數**無法區分**計畫核定、施工中與已完工等不同階段，因此追趕率僅能作為相對指標，不可解讀為實質處理進度；要進一步區分需要案件層級的進度欄位資料。
+
+若後續能取得**都更案件的進度資料**（例如核定/施工/完工狀態）、以及**危建解列的歷史紀錄**，便可從目前的「相對指標」進階為「處理時序分析」，回答「危建被列管後幾年內進入都更？」這類更貼近政策目標的問題。在此之前，本研究的結論建議是：對同時具有較高危建總數與相對較低追趕率的行政區，列為政策盤點與資源配置的優先觀察區，並從跨區叢集的角度補強都市更新規劃。
